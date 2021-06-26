@@ -13,16 +13,12 @@ class _HomeScreenState extends State<HomeScreen>
   int ldn = 1;
   int rdn = 1;
   late AnimationController _controller;
+  var animation;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(duration: Duration(seconds: 1), vsync: this);
-    _controller.forward();
-    _controller.addListener(() {
-      print(_controller.value);
-    });
+    animate();
   }
 
   @override
@@ -31,11 +27,29 @@ class _HomeScreenState extends State<HomeScreen>
     _controller.dispose();
   }
 
-  void roll() {
-    setState(() {
-      ldn = Random().nextInt(6) + 1;
-      rdn = Random().nextInt(6) + 1;
+  animate() {
+    _controller =
+        AnimationController(duration: Duration(seconds: 1), vsync: this);
+    animation = CurvedAnimation(parent: _controller, curve: Curves.bounceOut);
+    //_controller.forward();
+    animation.addListener(() {
+      setState(() {});
+      //print(_controller.value);
     });
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          ldn = Random().nextInt(6) + 1;
+          rdn = Random().nextInt(6) + 1;
+        });
+        print('Completed');
+        _controller.reverse();
+      }
+    });
+  }
+
+  void roll() {
+    _controller.forward();
   }
 
   @override
@@ -56,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Image(
+                        height: 200 - _controller.value * 100,
                         image: AssetImage('assets/images/dice-png-$ldn.png')),
                   ),
                 )),
@@ -65,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: Image(
+                        height: 200 - _controller.value * 100,
                         image: AssetImage('assets/images/dice-png-$rdn.png')),
                   ),
                 ))
